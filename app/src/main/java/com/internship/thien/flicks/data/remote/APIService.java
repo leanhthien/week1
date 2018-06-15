@@ -1,6 +1,7 @@
 package com.internship.thien.flicks.data.remote;
 
 import com.internship.thien.flicks.data.model.MovieList;
+import com.internship.thien.flicks.data.model.TrailerList;
 
 import java.util.List;
 
@@ -16,8 +17,8 @@ public interface APIService {
                               @Query("api_key") String APIKey);
 
     @GET("/3/movie/{id}/{tag}?")
-    Call<List<MovieList>> getTrailers(@Path("id") int id,
-                                      @Path("tag") int tag,
-                                      @Query("api_key") String APIKey);
+    Call<TrailerList> getTrailers(@Path("id") String id,
+                                  @Path("tag") String tag,
+                                  @Query("api_key") String APIKey);
 }
 

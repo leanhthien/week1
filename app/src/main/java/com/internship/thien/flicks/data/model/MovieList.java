@@ -3,7 +3,6 @@ package com.internship.thien.flicks.data.model;
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.internship.thien.flicks.data.model.Result;
 
 public class MovieList {
 
