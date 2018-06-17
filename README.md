@@ -31,7 +31,8 @@ The following **bonus** features are implemented:
 
 The following **additional** features are implemented:
 
-* [ ] Nothing else
+* [x] Improve the length of overview for a fixxed size.
+* [x] Add title inside poster of popular movies.
 
 ## Video Walkthrough
 
