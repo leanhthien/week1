@@ -3,6 +3,7 @@ package com.internship.thien.flicks;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -10,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.internship.thien.flicks.data.model.MovieList;
 import com.internship.thien.flicks.data.model.Result;
@@ -17,7 +19,11 @@ import com.internship.thien.flicks.data.remote.APIService;
 import com.internship.thien.flicks.data.remote.ApiUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import butterknife.BindColor;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -28,30 +34,33 @@ import retrofit2.Response;
  */
 public class MainActivity extends AppCompatActivity {
 
-    /**
-     * The Tag list movies.
-     */
     final String TAG_LIST_MOVIES = "now_playing";
-    /**
-     * The Tag trailers.
-     */
-    final String TAG_TRAILERS = "trailer";
-    private final String API_KEY = "4c397c33e7b2ed29b87718ab19999748";
-    private SwipeRefreshLayout mSwipeRefreshLayout;
-    private APIService mService;
+    final String THEMOVIEDB_API_KEY = "4c397c33e7b2ed29b87718ab19999748";
+    APIService mService;
     private MoviesAdapter mAdapter;
-    private RecyclerView mRecyclerView;
-    private Integer id;
+    private List<Result> mMovieList;
 
+    @BindView(R.id.rv_movie)
+    RecyclerView mRecyclerView;
+    @BindView(R.id.swipe_refresh)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+    @BindColor(android.R.color.holo_blue_bright)
+    int blue_bright;
+    @BindColor(android.R.color.holo_green_light)
+    int green_light;
+    @BindColor(android.R.color.holo_orange_light)
+    int orange_light;
+    @BindColor(android.R.color.holo_red_light)
+    int red_light;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSwipeRefreshLayout = findViewById(R.id.swipe_refresh);
-        mSwipeRefreshLayout.setColorSchemeResources(R.color.pink, R.color.indigo, R.color.lime);
+        ButterKnife.bind(this);
 
+        mSwipeRefreshLayout.setColorSchemeColors(red_light, orange_light, green_light, blue_bright);
 
         callAPI();
     }
@@ -63,8 +72,6 @@ public class MainActivity extends AppCompatActivity {
      */
     public boolean callAPI() {
 
-        mService = ApiUtils.getAPIService();
-
         loadResults();
         setUpList();
         return true;
@@ -74,15 +81,18 @@ public class MainActivity extends AppCompatActivity {
      * Load results.
      */
     public void loadResults() {
-        Call<MovieList> call = mService.getMovies(TAG_LIST_MOVIES, API_KEY);
+
+        mService = ApiUtils.getAPIService();
+        Call<MovieList> call = mService.getMovies(TAG_LIST_MOVIES, THEMOVIEDB_API_KEY);
         call.enqueue(new Callback<MovieList>() {
             @Override
             public void onResponse(@NonNull Call<MovieList> call, @NonNull Response<MovieList> response) {
 
                 if (response.isSuccessful()) {
-
-                    mAdapter.updateResults(response.body().getResults());
                     Log.d("Status: ", "Results loaded from API successfully");
+                    mMovieList = response.body().getResults();
+                    mAdapter.updateResults(mMovieList);
+
                 } else {
                     int statusCode = response.code();
                     // handle request errors depending on status code
@@ -92,8 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@Nullable Call<MovieList> call, @Nullable Throwable t) {
-                //showErrorMessage();
-                Log.e("Status:", "Error while loading from API");
+                Toast.makeText(MainActivity.this, "TheMovie API does not response!", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -102,15 +111,14 @@ public class MainActivity extends AppCompatActivity {
      * Sets up list.
      */
     public void setUpList() {
-        mRecyclerView = findViewById(R.id.rv_movie);
 
         //Action on every tap on a single Recycler View
         mAdapter = new MoviesAdapter(this, new ArrayList<Result>(0), new MoviesAdapter.MovieItemListener() {
 
             @Override
-            public void onMovieClick(Integer id) {
+            public void onMovieClick(Result result) {
                 Intent intent = new Intent(getBaseContext(), TrailerActivity.class);
-                intent.putExtra("MOVIE_ID", String.valueOf(id));
+                intent.putExtra("MOVIE", result);
                 startActivity(intent);
             }
         });
@@ -118,8 +126,6 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(mAdapter);
-        //RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
-        //mRecyclerView.addItemDecoration(itemDecoration);
 
         //Action for swipe-to-refresh-layout feature
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -134,7 +140,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        setUpList();
+
+        if (mMovieList == null) {
+            callAPI();
+        }
+        else {
+            Log.d("Position","Screen has been rotate");
+            //mAdapter.updateResults(mMovieList);
+            //setUpList();
+            callAPI();
+        }
 
     }
 

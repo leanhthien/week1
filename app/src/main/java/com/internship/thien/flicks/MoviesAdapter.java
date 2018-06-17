@@ -3,6 +3,7 @@ package com.internship.thien.flicks;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.CircularProgressDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,6 +19,8 @@ import com.internship.thien.flicks.data.model.Result;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
@@ -31,6 +34,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder
     private List<Result> mResults;
     private Context mContext;
     private MovieItemListener mResultListener;
+    int LENGTH = 150;
 
     /**
      * Instantiates a new Movies adapter.
@@ -82,26 +86,39 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder
         final String link_poster;
 
         Result result = mResults.get(position);
+        String overview = result.getOverview();
 
-        int orientation = mContext.getResources().getConfiguration().orientation;
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            if (result.getVoteAverage() > 5)
-                link_poster = createPosterLink(result.getBackdropPath());
-            else
-                link_poster = createPosterLink(result.getPosterPath());
-
-        }
-        else
-            link_poster = createPosterLink(result.getBackdropPath());
+        if (overview.length() > LENGTH)
+        overview = overview.substring(0,LENGTH) + "...";
 
         CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(mContext);
         circularProgressDrawable.setStrokeWidth(4f);
         circularProgressDrawable.setCenterRadius(40f);
-        circularProgressDrawable.setColorSchemeColors(R.color.white);
+        circularProgressDrawable.setColorSchemeColors(android.R.color.holo_orange_light);
         circularProgressDrawable.start();
 
-        holder.title.setText(result.getTitle());
-        holder.overview.setText(result.getOverview());
+        int orientation = mContext.getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+
+            if (result.getPopularity() < 50.0) {
+                holder.title.setText(result.getTitle());
+                holder.overview.setText(overview);
+                link_poster = createPosterLink(result.getPosterPath());
+            }
+            else {
+                holder.title.setText(result.getTitle());
+                link_poster = createPosterLink(result.getBackdropPath());
+            }
+
+        }
+        else if (orientation == Configuration.ORIENTATION_LANDSCAPE){
+            holder.title.setText(result.getTitle());
+            holder.overview.setText(overview);
+            link_poster = createPosterLink(result.getBackdropPath());
+        }
+        else
+            link_poster = createPosterLink(result.getPosterPath());
+
 
         Glide.with(mContext).load(link_poster)
                 .apply(new RequestOptions()
@@ -120,11 +137,18 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder
 
     @Override
     public int getItemViewType(int position) {
-        if (mResults.get(position).getVoteAverage() <= 5)
+        if (mResults.get(position).getPopularity() < 50.0)
             return 0;
         else
             return 1;
 
+    }
+    /**
+     * Sets the click listener
+     * @param listener listener for adapter
+     */
+    public void setListener(MovieItemListener listener) {
+        this.mResultListener = listener;
     }
 
     /**
@@ -149,33 +173,11 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder
     private String createPosterLink(String path) {
 
         final String BASE_IMAGES_URL = "http://image.tmdb.org/t/p/";
-        final String POSTER_SIZE = "w185";
+        final String POSTER_SIZE = "w500";
 
         if (path == null) return null;
         return BASE_IMAGES_URL + POSTER_SIZE + path;
     }
-
-    /**
-     * Clear.
-     */
-    // Clean all elements of the recycler
-    public void clear() {
-        mResults.clear();
-        notifyDataSetChanged();
-    }
-
-    /**
-     * Add all.
-     *
-     * @param list the list
-     */
-    // Add a list of items -- change to type used
-    public void addAll(List<Result> list) {
-        mResults.addAll(list);
-        notifyDataSetChanged();
-    }
-
-
 
     /**
      * The interface Movie item listener.
@@ -184,9 +186,9 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder
         /**
          * On movie click.
          *
-         * @param id the id
+         * @param result the movie
          */
-        void onMovieClick(Integer id);
+        void onMovieClick(Result result);
     }
 
     /**
@@ -194,9 +196,12 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder
      */
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        private TextView title;
-        private TextView overview;
-        private ImageView thumbnail;
+        @BindView(R.id.title_movie)
+        @Nullable TextView title;
+        @BindView(R.id.overview_movie)
+        @Nullable TextView overview;
+        @BindView(R.id.thumbnail_movie)
+        ImageView thumbnail;
 
         /**
          * The M result listener.
@@ -205,9 +210,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder
 
         private ViewHolder(View itemView, MovieItemListener MovieItemListener) {
             super(itemView);
-            title = itemView.findViewById(R.id.title_movie);
-            overview = itemView.findViewById(R.id.overview_movie);
-            thumbnail = itemView.findViewById(R.id.thumbnail_movie);
+
+            ButterKnife.bind(this, itemView);
 
             this.mResultListener = MovieItemListener;
             itemView.setOnClickListener(this);
@@ -215,9 +219,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder
 
         @Override
         public void onClick(View view) {
-            Result result = getItem(getAdapterPosition());
-            this.mResultListener.onMovieClick(result.getId());
 
+            this.mResultListener.onMovieClick(getItem(getAdapterPosition()));
             notifyDataSetChanged();
         }
     }

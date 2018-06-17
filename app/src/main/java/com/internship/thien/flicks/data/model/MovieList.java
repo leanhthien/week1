@@ -15,9 +15,9 @@ public class MovieList {
     @SerializedName("total_results")
     @Expose
     private Integer totalResults;
-    @SerializedName("dates")
+/*    @SerializedName("dates")
     @Expose
-    private Dates dates;
+    private Dates dates;*/
     @SerializedName("total_pages")
     @Expose
     private Integer totalPages;
@@ -46,13 +46,13 @@ public class MovieList {
         this.totalResults = totalResults;
     }
 
-    public Dates getDates() {
+/*    public Dates getDates() {
         return dates;
     }
 
     public void setDates(Dates dates) {
         this.dates = dates;
-    }
+    }*/
 
     public Integer getTotalPages() {
         return totalPages;

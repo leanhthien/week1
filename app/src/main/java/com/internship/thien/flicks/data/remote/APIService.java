@@ -3,8 +3,6 @@ package com.internship.thien.flicks.data.remote;
 import com.internship.thien.flicks.data.model.MovieList;
 import com.internship.thien.flicks.data.model.TrailerList;
 
-import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;

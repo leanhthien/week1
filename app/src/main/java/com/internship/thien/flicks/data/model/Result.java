@@ -1,10 +1,13 @@
 package com.internship.thien.flicks.data.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Result {
+public class Result implements Parcelable {
 
     @SerializedName("vote_count")
     @Expose
@@ -17,7 +20,7 @@ public class Result {
     private Boolean video;
     @SerializedName("vote_average")
     @Expose
-    private Double voteAverage;
+    private float voteAverage;
     @SerializedName("title")
     @Expose
     private String title;
@@ -73,11 +76,11 @@ public class Result {
         this.video = video;
     }
 
-    public Double getVoteAverage() {
+    public float getVoteAverage() {
         return voteAverage;
     }
 
-    public void setVoteAverage(Double voteAverage) {
+    public void setVoteAverage(float voteAverage) {
         this.voteAverage = voteAverage;
     }
 
@@ -161,5 +164,45 @@ public class Result {
         this.releaseDate = releaseDate;
     }
 
+    public static final Creator<Result> CREATOR = new Creator<Result>() {
+        @Override
+        public Result createFromParcel(Parcel in) {
+            return new Result(in);
+        }
+
+        @Override
+        public Result[] newArray(int size) {
+            return new Result[size];
+        }
+    };
+
+    public Result(Parcel in){
+
+        this.id = in.readInt();
+        this.voteAverage = in.readFloat();
+        this.popularity = in.readDouble();
+        this.title = in.readString();
+        this.posterPath = in.readString();
+        this.backdropPath = in.readString();
+        this.overview = in.readString();
+
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+        dest.writeFloat(this.voteAverage);
+        dest.writeDouble(this.popularity);
+        dest.writeString(this.title);
+        dest.writeString(this.posterPath);
+        dest.writeString(this.backdropPath);
+        dest.writeString(this.overview);
+
+    }
 }
 
