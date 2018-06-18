@@ -57,6 +57,7 @@
                         android:textSize="25sp"
                         android:textColor="@color/black" />
 
+                    <!--Rating bar-->
                     <RatingBar
                         style="?android:attr/ratingBarStyleSmall"
                         android:id="@+id/rating_bar"
