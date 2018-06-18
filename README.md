@@ -31,8 +31,9 @@ The following **bonus** features are implemented:
 
 The following **additional** features are implemented:
 
-* [x] Improve the length of overview for a fixxed size.
+* [x] Improve the length of overview for a fixed size.
 * [x] Add title inside poster of popular movies.
+* [x] Use parcel to transfer data between activities.
 
 ## Video Walkthrough
 
