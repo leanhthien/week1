@@ -56,20 +56,12 @@ public class TrailerActivity extends AppCompatActivity {
     @BindColor(R.color.white)
     int white;
 
-    //ImageView thumbnail;
-    //TextView title;
-    //TextView overview;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trailer);
 
-
-        title = findViewById(R.id.title_movie);
-        overview = findViewById(R.id.overview_movie);
-        thumbnail = findViewById(R.id.thumbnail_movie);
         ButterKnife.bind(this);
 
         data = getIntent().getExtras();
@@ -160,8 +152,6 @@ public class TrailerActivity extends AppCompatActivity {
         circularProgressDrawable.setCenterRadius(40f);
         circularProgressDrawable.setColorSchemeColors(white);
         circularProgressDrawable.start();
-
-
 
         title.setText(mResult.getTitle());
         overview.setText(mResult.getOverview());

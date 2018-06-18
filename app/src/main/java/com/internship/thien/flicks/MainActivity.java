@@ -146,8 +146,6 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             Log.d("Position","Screen has been rotate");
-            //mAdapter.updateResults(mMovieList);
-            //setUpList();
             callAPI();
         }
 
